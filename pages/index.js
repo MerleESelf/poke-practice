@@ -1,8 +1,47 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import {useState} from 'react'
 
 export default function Home() {
+// need state for form input 
+const [formInput, setFormInput] = useState('')
+
+// state for return pokemon
+const [pokemon, setPokemon ] = useState(null)
+
+// loading state 
+const [isLoading, setIsLoading] = useState(false)
+
+// error state 
+const [isError, setIsError] = useState(false)
+
+// need change handler for input feild 
+const handleChange = (event)=> {
+setFormInput(event.target.value)
+event.preventDefault
+}
+
+// need onSubmit function for form
+const handleSubmit = (event)=> {
+  // we want to use fetch to hit our pokemon api 
+  event.preventDefault()
+  setIsLoading(true)
+  setIsError(false)
+  setPokemon(null)
+  fetch(`https://pokeapi.co/api/v2/pokemon/${formInput}`)
+  .then((response) => response.json())
+  .then((data) => setPokemon(data))
+  .catch((error)=> {
+    setIsError(true)
+  })
+  
+  setIsLoading(false)
+  setFormInput('')
+  
+ 
+}
+console.log('poke', pokemon)
   return (
     <div className={styles.container}>
       <Head>
@@ -13,43 +52,28 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+         Who you fightin ? 
         </h1>
+        <br></br> 
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="pokemon-search">POKEMON SEARCH</label>
+          <input type="text" id="pokemon-search" name="pokemon-search" value={formInput} onChange={handleChange} />
+          <button type='submit' >Submit</button> 
+        </form> 
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        <br></br> 
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+        {pokemon ? <div>
+        <p> You sure you can handle them?</p>
+              <p>{pokemon.species.name}</p> 
+              <img style={{height: 200, width:200}} alt='' src={pokemon.sprites.front_default}/> 
+              </div> 
+        : <p> ... find your foe...</p> }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+        {isLoading ? <p>Telling them you trying to catch these hands</p> : null }
+        {isError ? <p> uh oh something went wrong</p> : null}
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
       </main>
 
       <footer className={styles.footer}>
